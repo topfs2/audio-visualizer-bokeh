@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="js/audiocontext-polyfill.js"></script>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+        <script src="js/three.js"></script>
+
+        <script src="js/AudioAnalyser.js"></script>
+        <script src="js/Detector.js"></script>
+
+        <script src="js/ShaderParticles.js"></script>
+
+         <link href="https://fonts.googleapis.com/css?family=Lato:100,300" rel="stylesheet"> 
+    </head>
+    <body>
+        <style>
+        html, body {
+            margin: 0;
+        }
+
+        body {
+            background-color: black;
+            overflow: hidden;
+        }
+
+        #webgl {
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            float: left;
+
+            -webkit-box-shadow: inset 0px 0px 10px -11px black;
+               -moz-box-shadow: inset 0px 0px 10px -11px black;
+                    box-shadow: inset 0px 0px 10px -11px black;
+        }
+
+        .metadata {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            padding: 50px;
+
+            background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
+            background:    -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
+            background:         linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+            box-sizing: border-box;
+        }
+
+        .artist,
+        .title {
+            font-size: 6em;
+            color: white;
+            text-shadow: 0px 0px 20px black;
+            font-family: Lato;
+        }
+
+        .artist {
+            font-weight: 100;
+        }
+
+        .title {
+            font-weight: 300;
+        }
+
+        audio {
+            display: none;
+        }
+        </style>
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+            varying vec2 vUv;
+            uniform float time;
+            uniform vec2 resolution;
+
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix *
+                              modelViewMatrix *
+                              vec4(position,1.0);
+            }
+        </script>
+         
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            uniform float time;
+            uniform vec2 resolution;
+
+            uniform sampler2D gradient1;
+            uniform sampler2D gradient2;
+
+            uniform float amount;
+            varying vec2 vUv;
+
+            uniform vec3 diffuse;
+
+            void main() {
+                vec2 displacement = vec2(sin(time * 0.5), cos(time * 0.7)) * 0.1;
+
+                vec4 color1 = texture2D(gradient1, vUv * 0.8 + 0.1 + displacement);
+                vec4 color2 = texture2D(gradient2, vUv) * (sin(time * 0.4) * 0.5 + 1.0);
+
+                vec4 color = color1 + color2;
+
+                gl_FragColor = vec4(color.rgb * diffuse, color.a) * amount;
+            }
+        </script>
+
+        <div id="webgl"></div>
+        <div class="metadata">
+            <div class="title">So Long</div>
+            <div class="artist">Alexandr Zhelanov</div>
+        </div>
+        <script src="js/base.js"></script>
+    </body>
+</html>
